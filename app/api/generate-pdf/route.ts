@@ -32,6 +32,55 @@ function safeContentDisposition(disposition: string | null) {
   return disposition;
 }
 
+function filenameFromUrl(url: string) {
+  try {
+    const pathname = new URL(url).pathname;
+    const filename = pathname.split("/").filter(Boolean).pop();
+
+    if (filename?.toLowerCase().endsWith(".pdf")) {
+      return filename.replaceAll('"', "");
+    }
+  } catch {
+    // Fall back to the default filename below.
+  }
+
+  return "proposta-imovel.pdf";
+}
+
+function pdfResponse(pdf: ArrayBuffer, contentDisposition: string | null) {
+  return new Response(pdf, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": safeContentDisposition(contentDisposition),
+      "Cache-Control": "no-store"
+    }
+  });
+}
+
+async function getPdfUrlFromJson(response: Response) {
+  try {
+    const payload = (await response.json()) as {
+      pdfUrl?: unknown;
+      url?: unknown;
+      downloadUrl?: unknown;
+    };
+
+    const url =
+      typeof payload.pdfUrl === "string"
+        ? payload.pdfUrl
+        : typeof payload.url === "string"
+          ? payload.url
+          : typeof payload.downloadUrl === "string"
+            ? payload.downloadUrl
+            : "";
+
+    return isValidHttpUrl(url) ? url : null;
+  } catch {
+    return null;
+  }
+}
+
 function mockPdf() {
   const pdf = `%PDF-1.4
 1 0 obj
@@ -174,22 +223,54 @@ export async function POST(request: Request) {
       return jsonError(message, n8nResponse.status);
     }
 
-    if (!contentType.toLowerCase().includes("application/pdf")) {
-      return jsonError("A automacao respondeu, mas nao devolveu um ficheiro PDF.", 502);
+    if (contentType.toLowerCase().includes("application/pdf")) {
+      const pdf = await n8nResponse.arrayBuffer();
+
+      return pdfResponse(
+        pdf,
+        n8nResponse.headers.get("content-disposition")
+      );
     }
 
-    const pdf = await n8nResponse.arrayBuffer();
+    if (contentType.toLowerCase().includes("application/json")) {
+      const pdfUrl = await getPdfUrlFromJson(n8nResponse);
 
-    return new Response(pdf, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": safeContentDisposition(
-          n8nResponse.headers.get("content-disposition")
-        ),
-        "Cache-Control": "no-store"
+      if (!pdfUrl) {
+        return jsonError(
+          "A automacao respondeu, mas nao devolveu um URL de PDF valido.",
+          502
+        );
       }
-    });
+
+      const pdfResponseFromUrl = await fetch(pdfUrl, {
+        headers: {
+          Accept: "application/pdf"
+        },
+        signal: controller.signal
+      });
+
+      const pdfContentType = pdfResponseFromUrl.headers.get("content-type") ?? "";
+
+      if (
+        !pdfResponseFromUrl.ok ||
+        !pdfContentType.toLowerCase().includes("application/pdf")
+      ) {
+        return jsonError("Nao foi possivel descarregar o PDF gerado.", 502);
+      }
+
+      const pdf = await pdfResponseFromUrl.arrayBuffer();
+
+      return pdfResponse(
+        pdf,
+        pdfResponseFromUrl.headers.get("content-disposition") ??
+          `attachment; filename="${filenameFromUrl(pdfUrl)}"`
+      );
+    }
+
+    return jsonError(
+      "A automacao respondeu, mas nao devolveu um PDF nem um URL de PDF.",
+      502
+    );
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
       return jsonError("A geracao do PDF excedeu o tempo disponivel.", 504);

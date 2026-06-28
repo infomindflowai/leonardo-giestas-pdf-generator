@@ -64,14 +64,41 @@ O site envia para `N8N_PDF_WEBHOOK_URL`:
 }
 ```
 
-O n8n deve responder com:
+O n8n pode responder de duas formas.
+
+Opcao recomendada para fornecedores como PDFEndpoint: JSON com URL do PDF:
+
+```json
+{
+  "pdfUrl": "https://storage.pdfendpoint.com/.../proposta-imovel.pdf"
+}
+```
+
+Tambem sao aceites os campos `url` e `downloadUrl`.
+
+Opcao alternativa: devolver diretamente o PDF em binario com:
 
 - status `200`;
 - header `Content-Type: application/pdf`;
 - opcionalmente `Content-Disposition: attachment; filename="proposta-imovel.pdf"`.
+
+Quando o n8n devolve um URL, a app descarrega esse PDF no backend e envia o
+ficheiro ao browser como download.
 
 Erros devem usar status nao-200 e JSON com uma mensagem, por exemplo:
 
 ```json
 { "message": "Nao foi possivel gerar o PDF." }
 ```
+
+## Template HTML para o n8n
+
+O ficheiro `templates/real-estate-dossier.html` contem um HTML A4 basico para
+converter em PDF no n8n. O template aceita tanto payloads com os campos na raiz
+(`$json.title`, `$json.description`, `$json.images`) como payloads recebidos pelo
+Webhook dentro de `body` (`$json.body.title`, `$json.body.description`,
+`$json.body.images`).
+
+No n8n, cole este HTML no campo/template que gera o HTML antes da conversao para
+PDF. As imagens sao renderizadas a partir do array `images`, usando a primeira
+como imagem principal e as restantes numa galeria simples.
