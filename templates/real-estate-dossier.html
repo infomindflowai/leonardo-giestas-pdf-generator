@@ -2,182 +2,102 @@
 <html lang="pt">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ (($json.body || $json).title || 'Dossier de imovel') }}</title>
-    <style>
-      @page {
-        size: A4;
-        margin: 18mm 16mm;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        color: #1d1a17;
-        background: #ffffff;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 11pt;
-        line-height: 1.55;
-      }
-
-      .page {
-        page-break-after: always;
-      }
-
-      .page:last-child {
-        page-break-after: auto;
-      }
-
-      .header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 24px;
-        padding-bottom: 12mm;
-      }
-
-      .brand {
-        font-size: 23pt;
-        font-weight: 400;
-        letter-spacing: 0.12em;
-        line-height: 1;
-      }
-
-      .brand span {
-        display: block;
-        margin-top: 3px;
-        color: #7a746d;
-        font-size: 7pt;
-        letter-spacing: 0.24em;
-        text-align: center;
-        text-transform: uppercase;
-      }
-
-      .label {
-        border: 1px solid #d6cec6;
-        color: #7a746d;
-        font-size: 7pt;
-        letter-spacing: 0.16em;
-        padding: 7px 9px;
-        text-transform: uppercase;
-      }
-
-      .hero-image {
-        width: 100%;
-        height: 128mm;
-        border: 1px solid #ddd6cf;
-        object-fit: cover;
-      }
-
-      h1 {
-        margin: 12mm 0 4mm;
-        font-size: 25pt;
-        font-weight: 400;
-        line-height: 1.16;
-      }
-
-      .source-link {
-        color: #8d6047;
-        font-size: 9pt;
-        text-decoration: none;
-      }
-
-      .section-title {
-        margin: 0 0 7mm;
-        border-bottom: 1px solid #d6cec6;
-        color: #8d6047;
-        font-size: 8pt;
-        font-weight: 700;
-        letter-spacing: 0.18em;
-        padding-bottom: 4mm;
-        text-transform: uppercase;
-      }
-
-      .description {
-        white-space: pre-line;
-      }
-
-      .gallery {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 9mm;
-      }
-
-      .gallery figure {
-        break-inside: avoid;
-        margin: 0;
-      }
-
-      .gallery img {
-        display: block;
-        width: 100%;
-        height: 82mm;
-        border: 1px solid #ddd6cf;
-        object-fit: cover;
-      }
-
-      .caption {
-        margin-top: 2mm;
-        color: #7a746d;
-        font-size: 8pt;
-      }
-
-      .footer {
-        margin-top: 12mm;
-        border-top: 1px solid #d6cec6;
-        color: #7a746d;
-        font-size: 8pt;
-        padding-top: 4mm;
-      }
-    </style>
   </head>
-  <body>
-    <section class="page">
-      <header class="header">
-        <div class="brand">CARE<span>Real Estate</span></div>
-        <div class="label">Dossier privado</div>
-      </header>
+  <body style="margin:0; padding:0; background:#ffffff; color:#1d1a17; font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:1.45;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%;">
+      <tr>
+        <td style="padding:28px 34px 18px 34px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%;">
+            <tr>
+              <td style="vertical-align:top;">
+                <div style="font-size:34px; font-weight:400; letter-spacing:4px; line-height:1;">CARE</div>
+                <div style="width:130px; color:#7a746d; font-size:10px; letter-spacing:2px; text-align:center; text-transform:uppercase;">Real Estate</div>
+              </td>
+              <td style="vertical-align:top; text-align:right;">
+                <span style="display:inline-block; border:1px solid #d6cec6; color:#7a746d; font-size:10px; letter-spacing:1.5px; padding:8px 10px; text-transform:uppercase;">Dossier privado</span>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
 
-      <img
-        class="hero-image"
-        src="{{ (() => { const data = $json.body || $json; const images = Array.isArray(data.images) ? data.images : []; return images[0] || ''; })() }}"
-        alt="Imagem principal do imovel"
-      />
+      <tr>
+        <td style="padding:0 34px;">
+          <img
+            src="{{ (() => { const data = $json.body || $json; const images = Array.isArray(data.images) ? data.images : []; return images[0] || ''; })() }}"
+            alt="Imagem principal do imovel"
+            style="display:block; width:100%; max-height:540px; object-fit:cover; border:1px solid #ddd6cf;"
+          />
+        </td>
+      </tr>
 
-      <h1>{{ (($json.body || $json).title || '') }}</h1>
+      <tr>
+        <td style="padding:26px 34px 8px 34px;">
+          <h1 style="margin:0; font-size:30px; font-weight:700; line-height:1.2;">{{ (($json.body || $json).title || '') }}</h1>
+        </td>
+      </tr>
 
-      {{ (() => {
-        const data = $json.body || $json;
-        const url = data.sourceUrl || data.sourceURL || data.url || '';
-        if (!url) return '';
-        return `<a class="source-link" href="${url}">Ver anuncio original</a>`;
-      })() }}
-    </section>
+      <tr>
+        <td style="padding:0 34px 26px 34px;">
+          {{ (() => {
+            const data = $json.body || $json;
+            const url = data.sourceUrl || data.sourceURL || data.url || '';
+            if (!url) return '';
+            return `<a href="${url}" style="color:#8d6047; font-size:12px;">Ver anuncio original</a>`;
+          })() }}
+        </td>
+      </tr>
 
-    <section class="page">
-      <h2 class="section-title">Descricao</h2>
-      <div class="description">{{ (($json.body || $json).description || '') }}</div>
+      <tr>
+        <td style="padding:0 34px;">
+          <div style="border-top:1px solid #d6cec6; margin-bottom:18px;"></div>
+          <h2 style="margin:0 0 14px 0; color:#8d6047; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">Descricao</h2>
+          <div style="white-space:pre-line; font-size:14px; line-height:1.5;">{{ (($json.body || $json).description || '') }}</div>
+        </td>
+      </tr>
 
-      <div class="footer">Informacao preparada para apresentacao comercial.</div>
-    </section>
+      <tr>
+        <td style="padding:28px 34px 0 34px;">
+          <div style="border-top:1px solid #d6cec6; margin-bottom:18px;"></div>
+          <h2 style="margin:0 0 16px 0; color:#8d6047; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">Imagens</h2>
+          {{ (() => {
+            const data = $json.body || $json;
+            const images = Array.isArray(data.images) ? data.images.filter(Boolean).slice(1) : [];
+            const rows = [];
 
-    <section class="page">
-      <h2 class="section-title">Imagens</h2>
-      <div class="gallery">
-        {{ (() => {
-          const data = $json.body || $json;
-          const images = Array.isArray(data.images) ? data.images.filter(Boolean) : [];
-          return images.slice(1).map((url, index) => `
-            <figure>
-              <img src="${url}" alt="Imagem ${index + 2} do imovel" />
-              <figcaption class="caption">Imagem ${index + 2}</figcaption>
-            </figure>
-          `).join('');
-        })() }}
-      </div>
-    </section>
+            for (let index = 0; index < images.length; index += 2) {
+              const left = images[index];
+              const right = images[index + 1];
+
+              rows.push(`
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%; margin-bottom:18px; page-break-inside:avoid;">
+                  <tr>
+                    <td width="50%" style="vertical-align:top; padding-right:8px;">
+                      <img src="${left}" alt="Imagem ${index + 2} do imovel" style="display:block; width:100%; height:250px; object-fit:cover; border:1px solid #ddd6cf;" />
+                      <div style="margin-top:5px; color:#7a746d; font-size:11px;">Imagem ${index + 2}</div>
+                    </td>
+                    <td width="50%" style="vertical-align:top; padding-left:8px;">
+                      ${right ? `
+                        <img src="${right}" alt="Imagem ${index + 3} do imovel" style="display:block; width:100%; height:250px; object-fit:cover; border:1px solid #ddd6cf;" />
+                        <div style="margin-top:5px; color:#7a746d; font-size:11px;">Imagem ${index + 3}</div>
+                      ` : ''}
+                    </td>
+                  </tr>
+                </table>
+              `);
+            }
+
+            return rows.join('');
+          })() }}
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding:18px 34px 28px 34px;">
+          <div style="border-top:1px solid #d6cec6; color:#7a746d; font-size:11px; padding-top:12px;">Informacao preparada para apresentacao comercial.</div>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
