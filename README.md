@@ -42,6 +42,7 @@ O n8n deve responder com JSON limpo:
 ```json
 {
   "title": "Apartamento T4...",
+  "pricing": "100000€",
   "description": "Descricao...",
   "images": ["https://...jpg", "https://...webp"],
   "sourceUrl": "https://www.idealista.pt/imovel/..."
@@ -58,6 +59,7 @@ O site envia para `N8N_PDF_WEBHOOK_URL`:
 ```json
 {
   "title": "Titulo editado",
+  "pricing": "100000€",
   "description": "Descricao editada",
   "images": ["https://...jpg"],
   "sourceUrl": "https://www.idealista.pt/imovel/..."
@@ -95,9 +97,9 @@ Erros devem usar status nao-200 e JSON com uma mensagem, por exemplo:
 
 O ficheiro `templates/real-estate-dossier.html` contem um HTML A4 basico para
 converter em PDF no n8n. O template aceita tanto payloads com os campos na raiz
-(`$json.title`, `$json.description`, `$json.images`) como payloads recebidos pelo
-Webhook dentro de `body` (`$json.body.title`, `$json.body.description`,
-`$json.body.images`).
+(`$json.title`, `$json.pricing`, `$json.description`, `$json.images`) como
+payloads recebidos pelo Webhook dentro de `body` (`$json.body.title`,
+`$json.body.pricing`, `$json.body.description`, `$json.body.images`).
 
 No n8n, cole este HTML no campo/template que gera o HTML antes da conversao para
 PDF. As imagens sao renderizadas a partir do array `images`, usando a primeira

@@ -8,6 +8,7 @@ type MessageTone = "neutral" | "success" | "error";
 
 type ListingResponse = {
   title: string;
+  pricing?: string;
   description: string;
   images: string[];
   sourceUrl?: string;
@@ -79,6 +80,7 @@ export default function PdfGenerator() {
   const [listingUrl, setListingUrl] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [title, setTitle] = useState("");
+  const [pricing, setPricing] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -144,6 +146,7 @@ export default function PdfGenerator() {
       const payload = (await response.json()) as ListingResponse;
 
       setTitle(payload.title ?? "");
+      setPricing(payload.pricing ?? "");
       setDescription(payload.description ?? "");
       setSourceUrl(payload.sourceUrl ?? trimmedUrl);
       setImages(createGalleryImages(payload.images ?? []));
@@ -190,6 +193,7 @@ export default function PdfGenerator() {
         },
         body: JSON.stringify({
           title: title.trim(),
+          pricing: pricing.trim(),
           description: description.trim(),
           images: selectedImages.map((image) => image.url),
           sourceUrl
@@ -290,6 +294,7 @@ export default function PdfGenerator() {
     setStage("empty");
     setSourceUrl("");
     setTitle("");
+    setPricing("");
     setDescription("");
     setImages([]);
     setNotice("Importe um anuncio para rever o conteudo antes de gerar o PDF.");
@@ -352,12 +357,26 @@ export default function PdfGenerator() {
         {stage === "editing" ? (
           <section className="editor-workspace" aria-label="Editor do PDF">
             <div className="copy-editor">
-              <label htmlFor="listing-title">Titulo</label>
-              <input
-                id="listing-title"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-              />
+              <div className="title-price-grid">
+                <div>
+                  <label htmlFor="listing-title">Titulo</label>
+                  <input
+                    id="listing-title"
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="listing-pricing">Preco</label>
+                  <input
+                    id="listing-pricing"
+                    value={pricing}
+                    onChange={(event) => setPricing(event.target.value)}
+                    placeholder="100000€"
+                  />
+                </div>
+              </div>
 
               <label htmlFor="listing-description">Descricao</label>
               <textarea

@@ -6,6 +6,7 @@ export const maxDuration = 60;
 
 type GeneratePdfBody = {
   title?: unknown;
+  pricing?: unknown;
   description?: unknown;
   images?: unknown;
   sourceUrl?: unknown;
@@ -13,6 +14,7 @@ type GeneratePdfBody = {
 
 type PdfPayload = {
   title: string;
+  pricing?: string;
   description: string;
   images: string[];
   sourceUrl?: string;
@@ -133,6 +135,7 @@ startxref
 
 function validatePayload(body: GeneratePdfBody): ValidationResult {
   const title = typeof body.title === "string" ? body.title.trim() : "";
+  const pricing = typeof body.pricing === "string" ? body.pricing.trim() : "";
   const description =
     typeof body.description === "string" ? body.description.trim() : "";
   const images = normalizeImageUrls(body.images);
@@ -156,6 +159,7 @@ function validatePayload(body: GeneratePdfBody): ValidationResult {
   return {
     payload: {
       title,
+      pricing: pricing || undefined,
       description,
       images,
       sourceUrl

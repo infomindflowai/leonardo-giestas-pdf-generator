@@ -23,29 +23,24 @@
       </tr>
 
       <tr>
-        <td style="padding:0 34px;">
+        <td style="padding:8px 34px 10px 34px;">
+          <h1 style="margin:0; font-size:30px; font-weight:700; line-height:1.2;">{{ (($json.body || $json).title || '') }}</h1>
+          {{ (() => {
+            const data = $json.body || $json;
+            const pricing = data.pricing || data.price || '';
+            if (!pricing) return '';
+            return `<div style="margin-top:8px; color:#8d6047; font-size:22px; font-weight:700; line-height:1.2;">${pricing}</div>`;
+          })() }}
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding:12px 34px 28px 34px;">
           <img
             src="{{ (() => { const data = $json.body || $json; const images = Array.isArray(data.images) ? data.images : []; return images[0] || ''; })() }}"
             alt="Imagem principal do imovel"
             style="display:block; width:100%; max-height:540px; object-fit:cover; border:1px solid #ddd6cf;"
           />
-        </td>
-      </tr>
-
-      <tr>
-        <td style="padding:26px 34px 8px 34px;">
-          <h1 style="margin:0; font-size:30px; font-weight:700; line-height:1.2;">{{ (($json.body || $json).title || '') }}</h1>
-        </td>
-      </tr>
-
-      <tr>
-        <td style="padding:0 34px 26px 34px;">
-          {{ (() => {
-            const data = $json.body || $json;
-            const url = data.sourceUrl || data.sourceURL || data.url || '';
-            if (!url) return '';
-            return `<a href="${url}" style="color:#8d6047; font-size:12px;">Ver anuncio original</a>`;
-          })() }}
         </td>
       </tr>
 

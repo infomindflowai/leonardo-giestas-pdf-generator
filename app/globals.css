@@ -268,6 +268,13 @@ h1 {
   text-transform: uppercase;
 }
 
+.title-price-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 220px);
+  gap: 16px;
+  align-items: end;
+}
+
 .copy-editor label:not(:first-child) {
   margin-top: 22px;
 }
@@ -536,7 +543,8 @@ h1 {
   }
 
   .editor-intro,
-  .editor-workspace {
+  .editor-workspace,
+  .title-price-grid {
     grid-template-columns: 1fr;
   }
 

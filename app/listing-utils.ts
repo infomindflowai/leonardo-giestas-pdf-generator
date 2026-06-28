@@ -1,5 +1,6 @@
 export type ListingDraft = {
   title: string;
+  pricing?: string;
   description: string;
   images: string[];
   sourceUrl?: string;
@@ -56,6 +57,8 @@ export function normalizeListingDraft(payload: unknown): ListingDraft | null {
   const data = payload as {
     title?: unknown;
     listing_title?: unknown;
+    pricing?: unknown;
+    price?: unknown;
     description?: unknown;
     listing_description?: unknown;
     images?: unknown;
@@ -65,6 +68,7 @@ export function normalizeListingDraft(payload: unknown): ListingDraft | null {
   };
 
   const title = typeof data.title === "string" ? data.title : data.listing_title;
+  const pricing = typeof data.pricing === "string" ? data.pricing : data.price;
   const description =
     typeof data.description === "string" ? data.description : data.listing_description;
   const images = normalizeImageUrls(data.images);
@@ -83,9 +87,9 @@ export function normalizeListingDraft(payload: unknown): ListingDraft | null {
 
   return {
     title: title.trim(),
+    pricing: typeof pricing === "string" ? pricing.trim() : undefined,
     description: description.trim(),
     images,
     sourceUrl
   };
 }
-

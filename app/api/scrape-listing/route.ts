@@ -15,6 +15,7 @@ function jsonError(message: string, status: number) {
 function mockListing(listingUrl: string) {
   const draft = normalizeListingDraft({
     title: "Apartamento T4 a venda na Estrada das Laranjeiras",
+    pricing: "1.000.000€",
     description:
       "Apartamento T4 de luxo no Condominio Villas do Carmo, em Sete Rios/Avenidas Novas, com areas amplas, muita luz natural, varanda e estacionamento. Uma proposta indicada para clientes que procuram uma residencia premium em localizacao central.",
     sourceUrl: listingUrl,
