@@ -48,7 +48,7 @@ function createGalleryImages(images: string[]) {
   return images.map((url, index) => ({
     id: `${index}-${url}`,
     url,
-    selected: true,
+    selected: index < 8,
     broken: false
   }));
 }
@@ -290,23 +290,17 @@ export default function PdfGenerator() {
     setImages((current) => current.map((image) => ({ ...image, selected: false })));
   }
 
-  function resetFlow() {
-    setStage("empty");
-    setSourceUrl("");
-    setTitle("");
-    setPricing("");
-    setDescription("");
-    setImages([]);
-    setNotice("Importe um anuncio para rever o conteudo antes de gerar o PDF.");
-  }
-
   return (
     <main className="page-shell">
       <section className="hero-tool editor-shell" aria-labelledby="page-title">
         <header className="topbar">
           <div className="brand-mark" aria-label="CARE Real Estate">
-            <span className="care-logo">CARE</span>
-            <span className="brand-subtitle">Real Estate</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="agency-logo"
+              src="https://media.egorealestate.com/ORIGINAL/27b7d0cb-032b-4644-bc49-4de29b36138b.png"
+              alt="Logotipo da agencia"
+            />
           </div>
           <div className="private-label">Dossier privado</div>
         </header>
@@ -466,9 +460,6 @@ export default function PdfGenerator() {
             </div>
 
             <div className="final-actions">
-              <button type="button" className="secondary-action" onClick={resetFlow}>
-                Importar outro anuncio
-              </button>
               <button
                 type="button"
                 className="primary-action"

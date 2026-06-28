@@ -34,19 +34,16 @@ function safeContentDisposition(disposition: string | null) {
   return disposition;
 }
 
-function filenameFromUrl(url: string) {
-  try {
-    const pathname = new URL(url).pathname;
-    const filename = pathname.split("/").filter(Boolean).pop();
+function filenameFromTitle(title: string) {
+  const slug = title
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 90);
 
-    if (filename?.toLowerCase().endsWith(".pdf")) {
-      return filename.replaceAll('"', "");
-    }
-  } catch {
-    // Fall back to the default filename below.
-  }
-
-  return "proposta-imovel.pdf";
+  return `${slug || "proposta-imovel"}.pdf`;
 }
 
 function pdfResponse(pdf: ArrayBuffer, contentDisposition: string | null) {
@@ -131,6 +128,10 @@ startxref
       "Cache-Control": "no-store"
     }
   });
+}
+
+function contentDispositionFromTitle(title: string) {
+  return `attachment; filename="${filenameFromTitle(title)}"`;
 }
 
 function validatePayload(body: GeneratePdfBody): ValidationResult {
@@ -232,7 +233,7 @@ export async function POST(request: Request) {
 
       return pdfResponse(
         pdf,
-        n8nResponse.headers.get("content-disposition")
+        contentDispositionFromTitle(validated.payload.title)
       );
     }
 
@@ -266,8 +267,7 @@ export async function POST(request: Request) {
 
       return pdfResponse(
         pdf,
-        pdfResponseFromUrl.headers.get("content-disposition") ??
-          `attachment; filename="${filenameFromUrl(pdfUrl)}"`
+        contentDispositionFromTitle(validated.payload.title)
       );
     }
 

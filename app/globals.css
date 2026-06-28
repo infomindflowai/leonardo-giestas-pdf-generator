@@ -72,6 +72,12 @@ button {
   line-height: 1;
 }
 
+.agency-logo {
+  display: block;
+  width: clamp(150px, 18vw, 220px);
+  height: auto;
+}
+
 .care-logo {
   font-size: clamp(2rem, 4vw, 3.1rem);
   font-weight: 300;
