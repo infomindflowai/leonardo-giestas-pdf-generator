@@ -82,21 +82,9 @@
         font-size: 11pt;
       }
 
-      .features-list {
-        margin: 0 0 9mm;
-        padding: 0 0 0 5mm;
-        color: #1d1a17;
-        font-size: 10pt;
-        line-height: 1.45;
-      }
-
-      .features-list li {
-        margin: 0 0 2mm;
-      }
-
       .hero-image {
         width: 100%;
-        height: 105mm;
+        height: 122mm;
         border: 1px solid #ddd6cf;
         object-fit: cover;
       }
@@ -110,6 +98,18 @@
         letter-spacing: 0.18em;
         padding-bottom: 4mm;
         text-transform: uppercase;
+      }
+
+      .features-list {
+        margin: 0 0 12mm;
+        padding: 0 0 0 5mm;
+        color: #1d1a17;
+        font-size: 10.5pt;
+        line-height: 1.5;
+      }
+
+      .features-list li {
+        margin: 0 0 2mm;
       }
 
       .description {
@@ -162,20 +162,6 @@
         +351 913 740 456
       </div>
 
-      {{ (() => {
-        const data = $json.body || $json;
-        const features = Array.isArray(data.features)
-          ? data.features
-          : typeof data.features === 'string'
-            ? data.features.split('\n')
-            : [];
-        const items = features
-          .map((feature) => String(feature).replace(/^•\s*/, '').trim())
-          .filter(Boolean);
-        if (!items.length) return '';
-        return `<ul class="features-list">${items.map((feature) => `<li>${feature}</li>`).join('')}</ul>`;
-      })() }}
-
       <img
         class="hero-image"
         src="{{ (() => { const data = $json.body || $json; const images = Array.isArray(data.images) ? data.images : []; return images[0] || ''; })() }}"
@@ -184,6 +170,36 @@
     </section>
 
     <section class="page">
+      {{ (() => {
+        const data = $json.body || $json;
+        const webhookBody = (() => {
+          try {
+            return $('Webhook1').item.json.body || {};
+          } catch {
+            return {};
+          }
+        })();
+        const rawFeatures =
+          data.features ||
+          data.characteristics ||
+          webhookBody.features ||
+          webhookBody.characteristics ||
+          [];
+        const features = Array.isArray(rawFeatures)
+          ? rawFeatures
+          : typeof rawFeatures === 'string'
+            ? rawFeatures.split('\n')
+            : [];
+        const items = features
+          .map((feature) => String(feature).replace(/^•\s*/, '').trim())
+          .filter(Boolean);
+        if (!items.length) return '';
+        return `
+          <h2 class="section-title">Características</h2>
+          <ul class="features-list">${items.map((feature) => `<li>${feature}</li>`).join('')}</ul>
+        `;
+      })() }}
+
       <h2 class="section-title">Descrição</h2>
       <div class="description">{{ (($json.body || $json).description || '') }}</div>
     </section>
