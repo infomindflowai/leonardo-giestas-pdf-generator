@@ -49,6 +49,34 @@ export function normalizeImageUrls(images: unknown) {
   });
 }
 
+export function cleanListingDescription(description: string) {
+  return description
+    .replace(/\r\n?/g, "\n")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^>\s?/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/^\s*\d+[.)]\s+/gm, "")
+    .replace(/^\s*[-*_]{3,}\s*$/gm, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/_([^_]+)_/g, "$1")
+    .replace(/~~([^~]+)~~/g, "$1")
+    .replace(/[ \t]*\|[ \t]*/g, " ")
+    .replace(/\p{Extended_Pictographic}/gu, "")
+    .replace(/[\uFE0E\uFE0F\u200D]/g, "")
+    .split("\n")
+    .map((line) => line.trim())
+    .join("\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export function normalizeListingDraft(payload: unknown): ListingDraft | null {
   if (!payload || typeof payload !== "object") {
     return null;
@@ -88,7 +116,7 @@ export function normalizeListingDraft(payload: unknown): ListingDraft | null {
   return {
     title: title.trim(),
     pricing: typeof pricing === "string" ? pricing.trim() : undefined,
-    description: description.trim(),
+    description: cleanListingDescription(description),
     images,
     sourceUrl
   };
