@@ -1,0 +1,202 @@
+import { NextResponse } from "next/server";
+import { isValidHttpUrl, normalizeImageUrls } from "../../listing-utils";
+
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
+type GeneratePdfBody = {
+  title?: unknown;
+  description?: unknown;
+  images?: unknown;
+  sourceUrl?: unknown;
+};
+
+type PdfPayload = {
+  title: string;
+  description: string;
+  images: string[];
+  sourceUrl?: string;
+};
+
+type ValidationResult = { error: string } | { payload: PdfPayload };
+
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ message }, { status });
+}
+
+function safeContentDisposition(disposition: string | null) {
+  if (!disposition) {
+    return 'attachment; filename="proposta-imovel.pdf"';
+  }
+
+  return disposition;
+}
+
+function mockPdf() {
+  const pdf = `%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 105 >>
+stream
+BT
+/F1 22 Tf
+72 760 Td
+(CARE PDF Generator) Tj
+0 -34 Td
+(PDF de teste gerado com selecao de imagens.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000242 00000 n 
+0000000398 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+468
+%%EOF`;
+
+  return new Response(pdf, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": 'attachment; filename="proposta-imovel-teste.pdf"',
+      "Cache-Control": "no-store"
+    }
+  });
+}
+
+function validatePayload(body: GeneratePdfBody): ValidationResult {
+  const title = typeof body.title === "string" ? body.title.trim() : "";
+  const description =
+    typeof body.description === "string" ? body.description.trim() : "";
+  const images = normalizeImageUrls(body.images);
+  const sourceUrl =
+    typeof body.sourceUrl === "string" && isValidHttpUrl(body.sourceUrl)
+      ? body.sourceUrl
+      : undefined;
+
+  if (!title) {
+    return { error: "Adicione um titulo antes de gerar o PDF." };
+  }
+
+  if (!description) {
+    return { error: "Adicione uma descricao antes de gerar o PDF." };
+  }
+
+  if (images.length === 0) {
+    return { error: "Selecione pelo menos uma imagem valida para gerar o PDF." };
+  }
+
+  return {
+    payload: {
+      title,
+      description,
+      images,
+      sourceUrl
+    }
+  };
+}
+
+export async function POST(request: Request) {
+  let body: GeneratePdfBody;
+
+  try {
+    body = (await request.json()) as GeneratePdfBody;
+  } catch {
+    return jsonError("Pedido invalido. Envie JSON com titulo, descricao e imagens.", 400);
+  }
+
+  const validated = validatePayload(body);
+
+  if ("error" in validated) {
+    return jsonError(validated.error, 400);
+  }
+
+  if (process.env.N8N_MOCK_PDF === "true") {
+    return mockPdf();
+  }
+
+  const webhookUrl = process.env.N8N_PDF_WEBHOOK_URL;
+
+  if (!webhookUrl) {
+    return jsonError("O webhook de PDF do n8n ainda nao esta configurado.", 500);
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 55000);
+
+  try {
+    const n8nResponse = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/pdf, application/json"
+      },
+      body: JSON.stringify(validated.payload),
+      signal: controller.signal
+    });
+
+    const contentType = n8nResponse.headers.get("content-type") ?? "";
+
+    if (!n8nResponse.ok) {
+      let message = "A automacao nao conseguiu gerar o PDF.";
+
+      if (contentType.toLowerCase().includes("application/json")) {
+        try {
+          const payload = (await n8nResponse.json()) as { message?: unknown; error?: unknown };
+          if (typeof payload.message === "string") {
+            message = payload.message;
+          } else if (typeof payload.error === "string") {
+            message = payload.error;
+          }
+        } catch {
+          // Keep the default message when n8n returns malformed JSON.
+        }
+      }
+
+      return jsonError(message, n8nResponse.status);
+    }
+
+    if (!contentType.toLowerCase().includes("application/pdf")) {
+      return jsonError("A automacao respondeu, mas nao devolveu um ficheiro PDF.", 502);
+    }
+
+    const pdf = await n8nResponse.arrayBuffer();
+
+    return new Response(pdf, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": safeContentDisposition(
+          n8nResponse.headers.get("content-disposition")
+        ),
+        "Cache-Control": "no-store"
+      }
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return jsonError("A geracao do PDF excedeu o tempo disponivel.", 504);
+    }
+
+    return jsonError("Nao foi possivel contactar a automacao de PDF do n8n.", 502);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
