@@ -1,6 +1,7 @@
 export type ListingDraft = {
   title: string;
   pricing?: string;
+  features: string[];
   description: string;
   images: string[];
   sourceUrl?: string;
@@ -77,6 +78,24 @@ export function cleanListingDescription(description: string) {
     .trim();
 }
 
+export function normalizeFeatures(features: unknown) {
+  const values = Array.isArray(features)
+    ? features
+    : typeof features === "string"
+      ? features.split("\n")
+      : [];
+
+  return values
+    .filter((feature): feature is string => typeof feature === "string")
+    .map((feature) =>
+      cleanListingDescription(feature)
+        .replace(/^•\s*/, "")
+        .trim()
+    )
+    .filter(Boolean)
+    .slice(0, 10);
+}
+
 export function normalizeListingDraft(payload: unknown): ListingDraft | null {
   if (!payload || typeof payload !== "object") {
     return null;
@@ -87,6 +106,8 @@ export function normalizeListingDraft(payload: unknown): ListingDraft | null {
     listing_title?: unknown;
     pricing?: unknown;
     price?: unknown;
+    features?: unknown;
+    characteristics?: unknown;
     description?: unknown;
     listing_description?: unknown;
     images?: unknown;
@@ -97,6 +118,7 @@ export function normalizeListingDraft(payload: unknown): ListingDraft | null {
 
   const title = typeof data.title === "string" ? data.title : data.listing_title;
   const pricing = typeof data.pricing === "string" ? data.pricing : data.price;
+  const features = normalizeFeatures(data.features ?? data.characteristics);
   const description =
     typeof data.description === "string" ? data.description : data.listing_description;
   const images = normalizeImageUrls(data.images);
@@ -116,6 +138,7 @@ export function normalizeListingDraft(payload: unknown): ListingDraft | null {
   return {
     title: title.trim(),
     pricing: typeof pricing === "string" ? pricing.trim() : undefined,
+    features,
     description: cleanListingDescription(description),
     images,
     sourceUrl

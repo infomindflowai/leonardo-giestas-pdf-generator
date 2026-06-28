@@ -308,6 +308,10 @@ h1 {
   resize: vertical;
 }
 
+.copy-editor .features-textarea {
+  min-height: 140px;
+}
+
 .copy-editor input:focus,
 .copy-editor textarea:focus {
   border-color: var(--care-bronze);

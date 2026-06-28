@@ -9,6 +9,7 @@ type MessageTone = "neutral" | "success" | "error";
 type ListingResponse = {
   title: string;
   pricing?: string;
+  features?: string[];
   description: string;
   images: string[];
   sourceUrl?: string;
@@ -53,6 +54,17 @@ function createGalleryImages(images: string[]) {
   }));
 }
 
+function featuresToText(features: string[] | undefined) {
+  return Array.isArray(features) ? features.filter(Boolean).join("\n") : "";
+}
+
+function textToFeatures(value: string) {
+  return value
+    .split("\n")
+    .map((feature) => feature.replace(/^•\s*/, "").trim())
+    .filter(Boolean);
+}
+
 function selectedFirst(images: GalleryImage[]) {
   return [
     ...images.filter((image) => image.selected && !image.broken),
@@ -81,6 +93,7 @@ export default function PdfGenerator() {
   const [sourceUrl, setSourceUrl] = useState("");
   const [title, setTitle] = useState("");
   const [pricing, setPricing] = useState("");
+  const [features, setFeatures] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -147,6 +160,7 @@ export default function PdfGenerator() {
 
       setTitle(payload.title ?? "");
       setPricing(payload.pricing ?? "");
+      setFeatures(featuresToText(payload.features));
       setDescription(payload.description ?? "");
       setSourceUrl(payload.sourceUrl ?? trimmedUrl);
       setImages(createGalleryImages(payload.images ?? []));
@@ -194,6 +208,7 @@ export default function PdfGenerator() {
         body: JSON.stringify({
           title: title.trim(),
           pricing: pricing.trim(),
+          features: textToFeatures(features),
           description: description.trim(),
           images: selectedImages.map((image) => image.url),
           sourceUrl
@@ -371,6 +386,16 @@ export default function PdfGenerator() {
                   />
                 </div>
               </div>
+
+              <label htmlFor="listing-features">Caracteristicas</label>
+              <textarea
+                id="listing-features"
+                className="features-textarea"
+                value={features}
+                onChange={(event) => setFeatures(event.target.value)}
+                placeholder={"Area: 78 m2\nTipologia: T2\n1º andar sem elevador"}
+                rows={5}
+              />
 
               <label htmlFor="listing-description">Descricao</label>
               <textarea

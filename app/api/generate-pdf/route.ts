@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isValidHttpUrl, normalizeImageUrls } from "../../listing-utils";
+import { isValidHttpUrl, normalizeFeatures, normalizeImageUrls } from "../../listing-utils";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -7,6 +7,7 @@ export const maxDuration = 60;
 type GeneratePdfBody = {
   title?: unknown;
   pricing?: unknown;
+  features?: unknown;
   description?: unknown;
   images?: unknown;
   sourceUrl?: unknown;
@@ -15,6 +16,7 @@ type GeneratePdfBody = {
 type PdfPayload = {
   title: string;
   pricing?: string;
+  features: string[];
   description: string;
   images: string[];
   sourceUrl?: string;
@@ -137,6 +139,7 @@ function contentDispositionFromTitle(title: string) {
 function validatePayload(body: GeneratePdfBody): ValidationResult {
   const title = typeof body.title === "string" ? body.title.trim() : "";
   const pricing = typeof body.pricing === "string" ? body.pricing.trim() : "";
+  const features = normalizeFeatures(body.features);
   const description =
     typeof body.description === "string" ? body.description.trim() : "";
   const images = normalizeImageUrls(body.images);
@@ -161,6 +164,7 @@ function validatePayload(body: GeneratePdfBody): ValidationResult {
     payload: {
       title,
       pricing: pricing || undefined,
+      features,
       description,
       images,
       sourceUrl
