@@ -178,7 +178,7 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as GeneratePdfBody;
   } catch {
-    return jsonError("Pedido invalido. Envie JSON com titulo, descricao e imagens.", 400);
+    return jsonError("Pedido inválido. Envie JSON com título, descrição e imagens.", 400);
   }
 
   const validated = validatePayload(body);
@@ -194,7 +194,7 @@ export async function POST(request: Request) {
   const webhookUrl = process.env.N8N_PDF_WEBHOOK_URL;
 
   if (!webhookUrl) {
-    return jsonError("O webhook de PDF do n8n ainda nao esta configurado.", 500);
+    return jsonError("O webhook de PDF do n8n ainda não está configurado.", 500);
   }
 
   const controller = new AbortController();
@@ -214,7 +214,7 @@ export async function POST(request: Request) {
     const contentType = n8nResponse.headers.get("content-type") ?? "";
 
     if (!n8nResponse.ok) {
-      let message = "A automacao nao conseguiu gerar o PDF.";
+      let message = "A automação não conseguiu gerar o PDF.";
 
       if (contentType.toLowerCase().includes("application/json")) {
         try {
@@ -246,7 +246,7 @@ export async function POST(request: Request) {
 
       if (!pdfUrl) {
         return jsonError(
-          "A automacao respondeu, mas nao devolveu um URL de PDF valido.",
+          "A automação respondeu, mas não devolveu um URL de PDF válido.",
           502
         );
       }
@@ -264,7 +264,7 @@ export async function POST(request: Request) {
         !pdfResponseFromUrl.ok ||
         !pdfContentType.toLowerCase().includes("application/pdf")
       ) {
-        return jsonError("Nao foi possivel descarregar o PDF gerado.", 502);
+        return jsonError("Não foi possível descarregar o PDF gerado.", 502);
       }
 
       const pdf = await pdfResponseFromUrl.arrayBuffer();
@@ -276,15 +276,15 @@ export async function POST(request: Request) {
     }
 
     return jsonError(
-      "A automacao respondeu, mas nao devolveu um PDF nem um URL de PDF.",
+      "A automação respondeu, mas não devolveu um PDF nem um URL de PDF.",
       502
     );
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      return jsonError("A geracao do PDF excedeu o tempo disponivel.", 504);
+      return jsonError("A geração do PDF excedeu o tempo disponível.", 504);
     }
 
-    return jsonError("Nao foi possivel contactar a automacao de PDF do n8n.", 502);
+    return jsonError("Não foi possível contactar a automação de PDF do n8n.", 502);
   } finally {
     clearTimeout(timeout);
   }

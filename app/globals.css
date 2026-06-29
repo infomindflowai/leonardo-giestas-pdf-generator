@@ -74,7 +74,7 @@ button {
 
 .agency-logo {
   display: block;
-  width: clamp(150px, 18vw, 220px);
+  width: clamp(128px, 15vw, 180px);
   height: auto;
 }
 
@@ -152,7 +152,7 @@ h1 {
 }
 
 .editor-intro h1 {
-  font-size: clamp(2.8rem, 7vw, 6.6rem);
+  font-size: clamp(2.25rem, 5.4vw, 5rem);
 }
 
 .editor-intro .lead {
@@ -456,16 +456,47 @@ h1 {
   background: var(--care-bronze);
 }
 
-.image-position {
-  min-height: 38px;
+.image-footer {
   border-top: 1px solid var(--care-line);
-  color: var(--care-muted);
   display: grid;
-  place-items: center;
+  gap: 8px;
+  padding: 9px;
+}
+
+.image-position {
+  color: var(--care-muted);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.image-order-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.image-order-actions button {
+  min-height: 34px;
+  border: 1px solid var(--care-line);
+  background: transparent;
+  color: var(--care-ink);
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.image-order-actions button:hover:not(:disabled) {
+  border-color: var(--care-bronze);
+  color: var(--care-bronze-dark);
+}
+
+.image-order-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
 }
 
 .final-actions {

@@ -98,7 +98,7 @@ export default function PdfGenerator() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [message, setMessage] = useState(
-    "Importe um anuncio para rever o conteudo antes de gerar o PDF."
+    "Importe um anúncio para rever o conteúdo antes de gerar o PDF."
   );
   const [messageTone, setMessageTone] = useState<MessageTone>("neutral");
 
@@ -125,12 +125,12 @@ export default function PdfGenerator() {
     event.preventDefault();
 
     if (!trimmedUrl) {
-      setNotice("Cole o link do anuncio antes de importar.", "error");
+      setNotice("Cole o link do anúncio antes de importar.", "error");
       return;
     }
 
     if (!isValidHttpUrl(trimmedUrl)) {
-      setNotice("Use um link valido comecado por http:// ou https://.", "error");
+      setNotice("Use um link válido começado por http:// ou https://.", "error");
       return;
     }
 
@@ -139,7 +139,7 @@ export default function PdfGenerator() {
 
     try {
       setBusy("scraping");
-      setNotice("A importar o anuncio e a recolher imagens.");
+      setNotice("A importar o anúncio e a recolher imagens.");
 
       const response = await fetch("/api/scrape-listing", {
         method: "POST",
@@ -152,7 +152,7 @@ export default function PdfGenerator() {
 
       if (!response.ok) {
         throw new Error(
-          await readError(response, "Nao foi possivel importar o anuncio.")
+          await readError(response, "Não foi possível importar o anúncio.")
         );
       }
 
@@ -166,13 +166,13 @@ export default function PdfGenerator() {
       setImages(createGalleryImages(payload.images ?? []));
       setStage("editing");
       setNotice(
-        "Anuncio importado. Reveja o texto e escolha as imagens para o PDF.",
+        "Anúncio importado. Reveja o texto e escolha as imagens para o PDF.",
         "success"
       );
     } catch (error) {
       setNotice(
         error instanceof DOMException && error.name === "AbortError"
-          ? "A importacao demorou demasiado tempo. Confirme o workflow no n8n."
+          ? "A importação demorou demasiado tempo. Confirme o workflow no n8n."
           : error instanceof Error
             ? error.message
             : "Ocorreu um erro inesperado ao importar.",
@@ -187,7 +187,7 @@ export default function PdfGenerator() {
   async function handleGeneratePdf() {
     if (!canGenerate) {
       setNotice(
-        "Confirme que existe titulo, descricao e pelo menos uma imagem selecionada.",
+        "Confirme que existe título, descrição e pelo menos uma imagem selecionada.",
         "error"
       );
       return;
@@ -198,7 +198,7 @@ export default function PdfGenerator() {
 
     try {
       setBusy("generating");
-      setNotice("A gerar o PDF com a selecao atual.");
+      setNotice("A gerar o PDF com a seleção atual.");
 
       const response = await fetch("/api/generate-pdf", {
         method: "POST",
@@ -217,12 +217,12 @@ export default function PdfGenerator() {
       });
 
       if (!response.ok) {
-        throw new Error(await readError(response, "Nao foi possivel gerar o PDF."));
+        throw new Error(await readError(response, "Não foi possível gerar o PDF."));
       }
 
       const contentType = response.headers.get("content-type") ?? "";
       if (!contentType.toLowerCase().includes("application/pdf")) {
-        throw new Error("A automacao respondeu, mas nao devolveu um ficheiro PDF.");
+        throw new Error("A automação respondeu, mas não devolveu um ficheiro PDF.");
       }
 
       const blob = await response.blob();
@@ -241,7 +241,7 @@ export default function PdfGenerator() {
     } catch (error) {
       setNotice(
         error instanceof DOMException && error.name === "AbortError"
-          ? "A geracao demorou demasiado tempo. Confirme o workflow no n8n."
+          ? "A geração demorou demasiado tempo. Confirme o workflow no n8n."
           : error instanceof Error
             ? error.message
             : "Ocorreu um erro inesperado ao gerar o PDF.",
@@ -285,6 +285,27 @@ export default function PdfGenerator() {
     });
   }
 
+  function moveImage(id: string, direction: -1 | 1) {
+    setImages((current) => {
+      const activeIndex = current.findIndex((image) => image.id === id);
+      const targetIndex = activeIndex + direction;
+
+      if (
+        activeIndex < 0 ||
+        targetIndex < 0 ||
+        targetIndex >= current.length ||
+        current[activeIndex].broken
+      ) {
+        return current;
+      }
+
+      const next = [...current];
+      const [image] = next.splice(activeIndex, 1);
+      next.splice(targetIndex, 0, image);
+      return selectedFirst(next);
+    });
+  }
+
   function markImageBroken(id: string) {
     setImages((current) =>
       selectedFirst(
@@ -314,7 +335,7 @@ export default function PdfGenerator() {
             <img
               className="agency-logo"
               src="https://media.egorealestate.com/ORIGINAL/27b7d0cb-032b-4644-bc49-4de29b36138b.png"
-              alt="Logotipo da agencia"
+              alt="Logótipo da agência"
             />
           </div>
           <div className="private-label">Dossier privado</div>
@@ -322,17 +343,17 @@ export default function PdfGenerator() {
 
         <div className="editor-intro">
           <div>
-            <p className="eyebrow">Apresentacao para cliente comprador</p>
-            <h1 id="page-title">Preparar PDF de imovel</h1>
+            <p className="eyebrow">Apresentação para cliente comprador</p>
+            <h1 id="page-title">Preparar PDF de imóvel</h1>
           </div>
           <p className="lead">
-            Importe o anuncio, ajuste o texto e escolha apenas as fotografias que
+            Importe o anúncio, ajuste o texto e escolha apenas as fotografias que
             devem entrar na proposta final.
           </p>
         </div>
 
         <form className="generator-panel import-panel" onSubmit={handleImport} noValidate>
-          <label htmlFor="listing-url">Link do anuncio</label>
+          <label htmlFor="listing-url">Link do anúncio</label>
           <div className="input-row">
             <input
               id="listing-url"
@@ -344,13 +365,13 @@ export default function PdfGenerator() {
               onChange={(event) => {
                 setListingUrl(event.target.value);
                 if (busy === "idle") {
-                  setNotice("Importe um anuncio para rever o conteudo antes de gerar o PDF.");
+                  setNotice("Importe um anúncio para rever o conteúdo antes de gerar o PDF.");
                 }
               }}
               aria-describedby="form-message"
             />
             <button type="submit" disabled={!canImport}>
-              {busy === "scraping" ? "A importar" : "Importar anuncio"}
+              {busy === "scraping" ? "A importar" : "Importar anúncio"}
             </button>
           </div>
         </form>
@@ -368,7 +389,7 @@ export default function PdfGenerator() {
             <div className="copy-editor">
               <div className="title-price-grid">
                 <div>
-                  <label htmlFor="listing-title">Titulo</label>
+                  <label htmlFor="listing-title">Título</label>
                   <input
                     id="listing-title"
                     value={title}
@@ -377,7 +398,7 @@ export default function PdfGenerator() {
                 </div>
 
                 <div>
-                  <label htmlFor="listing-pricing">Preco</label>
+                  <label htmlFor="listing-pricing">Preço</label>
                   <input
                     id="listing-pricing"
                     value={pricing}
@@ -387,17 +408,17 @@ export default function PdfGenerator() {
                 </div>
               </div>
 
-              <label htmlFor="listing-features">Caracteristicas</label>
+              <label htmlFor="listing-features">Características</label>
               <textarea
                 id="listing-features"
                 className="features-textarea"
                 value={features}
                 onChange={(event) => setFeatures(event.target.value)}
-                placeholder={"Area: 78 m2\nTipologia: T2\n1º andar sem elevador"}
+                placeholder={"Área: 78 m²\nTipologia: T2\n1º andar sem elevador"}
                 rows={5}
               />
 
-              <label htmlFor="listing-description">Descricao</label>
+              <label htmlFor="listing-description">Descrição</label>
               <textarea
                 id="listing-description"
                 value={description}
@@ -420,20 +441,19 @@ export default function PdfGenerator() {
                     Selecionar todas
                   </button>
                   <button type="button" onClick={clearImageSelection}>
-                    Limpar selecao
+                    Limpar seleção
                   </button>
                 </div>
               </div>
 
               {selectedImages.length > 12 ? (
                 <p className="gallery-warning">
-                  Ha muitas imagens selecionadas. O PDF pode ficar mais pesado e longo.
+                  Há muitas imagens selecionadas. O PDF pode ficar mais pesado e longo.
                 </p>
               ) : null}
 
               <p className="gallery-note">
-                Arraste as imagens para ordenar. Ao remover uma imagem, ela desce para o
-                fim da selecao.
+                Arraste as imagens para ordenar. No telemóvel, use Subir e Descer.
               </p>
 
               <div className="image-grid">
@@ -473,12 +493,30 @@ export default function PdfGenerator() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={image.url}
-                        alt={`Imagem ${index + 1} do imovel`}
+                        alt={`Imagem ${index + 1} do imóvel`}
                         onError={() => markImageBroken(image.id)}
                       />
                       <span>{image.broken ? "Falhou" : image.selected ? "Selecionada" : "Usar"}</span>
                     </button>
-                    <div className="image-position">Imagem {index + 1}</div>
+                    <div className="image-footer">
+                      <span className="image-position">Imagem {index + 1}</span>
+                      <div className="image-order-actions" aria-label="Ordenar imagem">
+                        <button
+                          type="button"
+                          onClick={() => moveImage(image.id, -1)}
+                          disabled={index === 0 || image.broken}
+                        >
+                          Subir
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveImage(image.id, 1)}
+                          disabled={index === images.length - 1 || image.broken}
+                        >
+                          Descer
+                        </button>
+                      </div>
+                    </div>
                   </article>
                 ))}
               </div>

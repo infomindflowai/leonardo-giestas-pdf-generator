@@ -37,11 +37,11 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as ScrapeBody;
   } catch {
-    return jsonError("Pedido invalido. Envie JSON com o link do anuncio.", 400);
+    return jsonError("Pedido inválido. Envie JSON com o link do anúncio.", 400);
   }
 
   if (!isValidHttpUrl(body.listingUrl)) {
-    return jsonError("Use um link valido comecado por http:// ou https://.", 400);
+    return jsonError("Use um link válido começado por http:// ou https://.", 400);
   }
 
   if (process.env.N8N_MOCK_SCRAPE === "true") {
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   const webhookUrl = process.env.N8N_SCRAPE_WEBHOOK_URL;
 
   if (!webhookUrl) {
-    return jsonError("O webhook de importacao do n8n ainda nao esta configurado.", 500);
+    return jsonError("O webhook de importação do n8n ainda não está configurado.", 500);
   }
 
   const controller = new AbortController();
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     });
 
     if (!n8nResponse.ok) {
-      let message = "A automacao nao conseguiu importar o anuncio.";
+      let message = "A automação não conseguiu importar o anúncio.";
 
       try {
         const payload = (await n8nResponse.json()) as { message?: unknown; error?: unknown };
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       payload = await n8nResponse.json();
     } catch {
       return jsonError(
-        "O webhook respondeu com sucesso, mas nao devolveu JSON. Configure o n8n para responder com title, description e images.",
+        "O webhook respondeu com sucesso, mas não devolveu JSON. Configure o n8n para responder com title, description e images.",
         502
       );
     }
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
 
     if (!draft) {
       return jsonError(
-        "O webhook devolveu JSON, mas nao no formato esperado: title, description e images.",
+        "O webhook devolveu JSON, mas não no formato esperado: title, description e images.",
         502
       );
     }
@@ -108,10 +108,10 @@ export async function POST(request: Request) {
     return NextResponse.json(draft);
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      return jsonError("A importacao do anuncio excedeu o tempo disponivel.", 504);
+      return jsonError("A importação do anúncio excedeu o tempo disponível.", 504);
     }
 
-    return jsonError("Nao foi possivel contactar a automacao de importacao do n8n.", 502);
+    return jsonError("Não foi possível contactar a automação de importação do n8n.", 502);
   } finally {
     clearTimeout(timeout);
   }
