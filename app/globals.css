@@ -94,6 +94,21 @@ button {
   letter-spacing: 0.16em;
 }
 
+.generator-panel select {
+  width: 100%;
+  min-height: 56px;
+  border: 1px solid var(--care-line);
+  background: #ffffff;
+  color: var(--care-ink);
+  outline: none;
+  padding: 0 46px 0 16px;
+}
+
+.generator-panel select:focus {
+  border-color: var(--care-bronze);
+  box-shadow: 0 0 0 3px rgba(185, 126, 90, 0.14);
+}
+
 .brand-subtitle {
   font-size: 0.73rem;
   color: var(--care-muted);
@@ -291,12 +306,15 @@ h1 {
   padding-bottom: 24px;
 }
 
+.import-options-grid {
+  margin-bottom: 28px;
+}
+
 .copy-editor label:not(:first-child) {
   margin-top: 22px;
 }
 
 .copy-editor input,
-.copy-editor select,
 .copy-editor textarea {
   width: 100%;
   margin-top: 12px;
@@ -304,12 +322,6 @@ h1 {
   background: #ffffff;
   color: var(--care-ink);
   outline: none;
-}
-
-.copy-editor select {
-  min-height: 56px;
-  padding: 0 46px 0 16px;
-  font-size: 1.05rem;
 }
 
 .copy-editor input {
@@ -330,7 +342,6 @@ h1 {
 }
 
 .copy-editor input:focus,
-.copy-editor select:focus,
 .copy-editor textarea:focus {
   border-color: var(--care-bronze);
   box-shadow: 0 0 0 3px rgba(185, 126, 90, 0.14);

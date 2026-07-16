@@ -34,8 +34,15 @@ selecionar imagens e gerar um PDF atraves de webhooks privados do n8n.
 O site envia para `N8N_SCRAPE_WEBHOOK_URL`:
 
 ```json
-{ "listingUrl": "https://www.idealista.pt/imovel/..." }
+{
+  "listingUrl": "https://www.idealista.pt/imovel/...",
+  "Linguagem": "Português"
+}
 ```
+
+`Linguagem` aceita apenas `Português` ou `Inglês`. O workflow de importacao deve
+usar este valor para devolver `title`, `features` e `description` no idioma
+selecionado.
 
 O n8n deve responder com JSON limpo:
 
@@ -43,6 +50,7 @@ O n8n deve responder com JSON limpo:
 {
   "title": "Apartamento T4...",
   "pricing": "100000€",
+  "features": ["Área: 78 m²", "Tipologia: T2"],
   "description": "Descricao...",
   "images": ["https://...jpg", "https://...webp"],
   "sourceUrl": "https://www.idealista.pt/imovel/..."

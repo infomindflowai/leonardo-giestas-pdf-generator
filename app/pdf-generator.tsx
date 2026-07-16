@@ -157,7 +157,10 @@ export default function PdfGenerator() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ listingUrl: trimmedUrl }),
+        body: JSON.stringify({
+          listingUrl: trimmedUrl,
+          Linguagem: language
+        }),
         signal: controller.signal
       });
 
@@ -367,6 +370,40 @@ export default function PdfGenerator() {
         </div>
 
         <form className="generator-panel import-panel" onSubmit={handleImport} noValidate>
+          <div className="pdf-options-grid import-options-grid">
+            <div>
+              <label htmlFor="pdf-consultant">Consultor</label>
+              <select
+                id="pdf-consultant"
+                value={consultantName}
+                onChange={(event) =>
+                  setConsultantName(event.target.value as PdfConsultantName)
+                }
+              >
+                {PDF_CONSULTANTS.map((option) => (
+                  <option key={option.name} value={option.name}>
+                    {option.name} — {option.phone}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="pdf-language">Idioma do PDF</label>
+              <select
+                id="pdf-language"
+                value={language}
+                onChange={(event) => setLanguage(event.target.value as PdfLanguage)}
+              >
+                {PDF_LANGUAGES.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <label htmlFor="listing-url">Link do anúncio</label>
           <div className="input-row">
             <input
@@ -401,42 +438,6 @@ export default function PdfGenerator() {
         {stage === "editing" ? (
           <section className="editor-workspace" aria-label="Editor do PDF">
             <div className="copy-editor">
-              <div className="pdf-options-grid">
-                <div>
-                  <label htmlFor="pdf-consultant">Consultor</label>
-                  <select
-                    id="pdf-consultant"
-                    value={consultantName}
-                    onChange={(event) =>
-                      setConsultantName(event.target.value as PdfConsultantName)
-                    }
-                  >
-                    {PDF_CONSULTANTS.map((option) => (
-                      <option key={option.name} value={option.name}>
-                        {option.name} — {option.phone}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="pdf-language">Idioma</label>
-                  <select
-                    id="pdf-language"
-                    value={language}
-                    onChange={(event) =>
-                      setLanguage(event.target.value as PdfLanguage)
-                    }
-                  >
-                    {PDF_LANGUAGES.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
               <div className="title-price-grid">
                 <div>
                   <label htmlFor="listing-title">Título</label>

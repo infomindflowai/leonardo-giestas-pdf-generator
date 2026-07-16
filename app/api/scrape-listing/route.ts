@@ -1,23 +1,33 @@
 import { NextResponse } from "next/server";
 import { isValidHttpUrl, normalizeListingDraft } from "../../listing-utils";
+import { isPdfLanguage, type PdfLanguage } from "../../pdf-options";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 type ScrapeBody = {
   listingUrl?: unknown;
+  Linguagem?: unknown;
 };
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ message }, { status });
 }
 
-function mockListing(listingUrl: string) {
+function mockListing(listingUrl: string, language: PdfLanguage) {
+  const isEnglish = language === "Inglês";
   const draft = normalizeListingDraft({
-    title: "Apartamento T4 a venda na Estrada das Laranjeiras",
+    title: isEnglish
+      ? "Four-bedroom apartment for sale on Estrada das Laranjeiras"
+      : "Apartamento T4 à venda na Estrada das Laranjeiras",
     pricing: "1.000.000€",
+    features: isEnglish
+      ? ["Four bedrooms", "Balcony", "Private parking"]
+      : ["Quatro quartos", "Varanda", "Estacionamento privativo"],
     description:
-      "Apartamento T4 de luxo no Condominio Villas do Carmo, em Sete Rios/Avenidas Novas, com areas amplas, muita luz natural, varanda e estacionamento. Uma proposta indicada para clientes que procuram uma residencia premium em localizacao central.",
+      isEnglish
+        ? "Luxury four-bedroom apartment in the Villas do Carmo condominium, with generous spaces, abundant natural light, a balcony and private parking."
+        : "Apartamento T4 de luxo no Condomínio Villas do Carmo, com áreas amplas, muita luz natural, varanda e estacionamento privativo.",
     sourceUrl: listingUrl,
     images: [
       "https://img4.idealista.pt/blur/WEB_DETAIL-L-L/0/id.pro.pt.image.master/a1/6f/33/318252830.jpg",
@@ -44,8 +54,12 @@ export async function POST(request: Request) {
     return jsonError("Use um link válido começado por http:// ou https://.", 400);
   }
 
+  if (!isPdfLanguage(body.Linguagem)) {
+    return jsonError("Selecione um idioma válido antes de importar o anúncio.", 400);
+  }
+
   if (process.env.N8N_MOCK_SCRAPE === "true") {
-    return mockListing(body.listingUrl);
+    return mockListing(body.listingUrl, body.Linguagem);
   }
 
   const webhookUrl = process.env.N8N_SCRAPE_WEBHOOK_URL;
@@ -64,7 +78,10 @@ export async function POST(request: Request) {
         "Content-Type": "application/json",
         Accept: "application/json"
       },
-      body: JSON.stringify({ listingUrl: body.listingUrl }),
+      body: JSON.stringify({
+        listingUrl: body.listingUrl,
+        Linguagem: body.Linguagem
+      }),
       signal: controller.signal
     });
 
