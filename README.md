@@ -62,9 +62,22 @@ O site envia para `N8N_PDF_WEBHOOK_URL`:
   "pricing": "100000€",
   "description": "Descricao editada",
   "images": ["https://...jpg"],
-  "sourceUrl": "https://www.idealista.pt/imovel/..."
+  "sourceUrl": "https://www.idealista.pt/imovel/...",
+  "Nome": "Leonardo Giestas",
+  "Telefone": "913 740 456",
+  "Linguagem": "Português"
 }
 ```
+
+Os valores aceites para `Nome` e `Telefone` sao os pares:
+
+- `Leonardo Giestas` / `913 740 456`;
+- `Rogner Vieira` / `966 490 870`.
+
+`Linguagem` aceita apenas `Português` ou `Inglês`. O workflow deve usar este
+campo no prompt do agente e produzir `title`, `features` e `description` no
+idioma escolhido antes de renderizar o HTML. A resposta HTTP final do webhook
+continua a ser o PDF ou um JSON com o URL do PDF.
 
 O n8n pode responder de duas formas.
 
@@ -100,6 +113,10 @@ converter em PDF no n8n. O template aceita tanto payloads com os campos na raiz
 (`$json.title`, `$json.pricing`, `$json.description`, `$json.images`) como
 payloads recebidos pelo Webhook dentro de `body` (`$json.body.title`,
 `$json.body.pricing`, `$json.body.description`, `$json.body.images`).
+
+O template tambem usa `Nome`, `Telefone` e `Linguagem`, procurando estes campos
+no item atual ou no body do node `Webhook1`. Os numeros de telefone devem chegar
+sem indicativo; o template acrescenta `+351` apenas na apresentacao visual.
 
 No n8n, cole este HTML no campo/template que gera o HTML antes da conversao para
 PDF. As imagens sao renderizadas a partir do array `images`, usando a primeira

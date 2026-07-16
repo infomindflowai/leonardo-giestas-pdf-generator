@@ -1,9 +1,22 @@
 <!doctype html>
-<html lang="pt">
+<html lang="{{ (() => {
+  const data = $json.body || $json;
+  let webhookBody = {};
+  try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+  return (data.Linguagem || webhookBody.Linguagem) === 'Inglês' ? 'en' : 'pt';
+})() }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ (($json.body || $json).title || 'Dossier de imóvel') }}</title>
+    <title>{{ (() => {
+      const data = $json.body || $json;
+      let webhookBody = {};
+      try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+      if (data.title) return data.title;
+      return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
+        ? 'Property dossier'
+        : 'Dossier de imóvel';
+    })() }}</title>
     <style>
       @page {
         size: A4;
@@ -143,9 +156,23 @@
         <img
           class="agency-logo"
           src="https://media.egorealestate.com/ORIGINAL/27b7d0cb-032b-4644-bc49-4de29b36138b.png"
-          alt="Logótipo da agência"
+          alt="{{ (() => {
+            const data = $json.body || $json;
+            let webhookBody = {};
+            try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+            return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
+              ? 'Agency logo'
+              : 'Logótipo da agência';
+          })() }}"
         />
-        <div class="label">Dossier privado</div>
+        <div class="label">{{ (() => {
+          const data = $json.body || $json;
+          let webhookBody = {};
+          try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+          return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
+            ? 'Private dossier'
+            : 'Dossier privado';
+        })() }}</div>
       </header>
 
       <h1>{{ (($json.body || $json).title || '') }}</h1>
@@ -158,18 +185,51 @@
       })() }}
 
       <div class="consultant">
-        <strong>Leonardo Giestas</strong>
-        +351 913 740 456
+        <strong>{{ (() => {
+          const data = $json.body || $json;
+          let webhookBody = {};
+          try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+          return data.Nome || webhookBody.Nome || 'Leonardo Giestas';
+        })() }}</strong>
+        {{ (() => {
+          const data = $json.body || $json;
+          let webhookBody = {};
+          try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+          const phone = data.Telefone || webhookBody.Telefone || '913 740 456';
+          return `+351 ${phone}`;
+        })() }}
       </div>
 
       <img
         class="hero-image"
         src="{{ (() => { const data = $json.body || $json; const images = Array.isArray(data.images) ? data.images : []; return images[0] || ''; })() }}"
-        alt="Imagem principal do imóvel"
+        alt="{{ (() => {
+          const data = $json.body || $json;
+          let webhookBody = {};
+          try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+          return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
+            ? 'Main property image'
+            : 'Imagem principal do imóvel';
+        })() }}"
       />
     </section>
 
     <section class="page">
+      <header class="header">
+        <img
+          class="agency-logo"
+          src="https://media.egorealestate.com/ORIGINAL/27b7d0cb-032b-4644-bc49-4de29b36138b.png"
+          alt="{{ (() => {
+            const data = $json.body || $json;
+            let webhookBody = {};
+            try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+            return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
+              ? 'Agency logo'
+              : 'Logótipo da agência';
+          })() }}"
+        />
+      </header>
+
       {{ (() => {
         const data = $json.body || $json;
         const webhookBody = (() => {
@@ -195,17 +255,49 @@
           .filter(Boolean);
         if (!items.length) return '';
         return `
-          <h2 class="section-title">Características</h2>
+          <h2 class="section-title">${(() => {
+            const language = data.Linguagem || webhookBody.Linguagem;
+            return language === 'Inglês' ? 'Features' : 'Características';
+          })()}</h2>
           <ul class="features-list">${items.map((feature) => `<li>${feature}</li>`).join('')}</ul>
         `;
       })() }}
 
-      <h2 class="section-title">Descrição</h2>
+      <h2 class="section-title">{{ (() => {
+        const data = $json.body || $json;
+        let webhookBody = {};
+        try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+        return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
+          ? 'Description'
+          : 'Descrição';
+      })() }}</h2>
       <div class="description">{{ (($json.body || $json).description || '') }}</div>
     </section>
 
     <section class="page">
-      <h2 class="section-title">Imagens</h2>
+      <header class="header">
+        <img
+          class="agency-logo"
+          src="https://media.egorealestate.com/ORIGINAL/27b7d0cb-032b-4644-bc49-4de29b36138b.png"
+          alt="{{ (() => {
+            const data = $json.body || $json;
+            let webhookBody = {};
+            try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+            return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
+              ? 'Agency logo'
+              : 'Logótipo da agência';
+          })() }}"
+        />
+      </header>
+
+      <h2 class="section-title">{{ (() => {
+        const data = $json.body || $json;
+        let webhookBody = {};
+        try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+        return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
+          ? 'Images'
+          : 'Imagens';
+      })() }}</h2>
 
       <div class="gallery">
         {{ (() => {
@@ -214,7 +306,16 @@
 
           return images.slice(1).map((url) => `
             <figure>
-              <img src="${url}" alt="Imagem do imóvel" />
+              <img
+                src="${url}"
+                alt="${(() => {
+                  let webhookBody = {};
+                  try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+                  return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
+                    ? 'Property image'
+                    : 'Imagem do imóvel';
+                })()}"
+              />
             </figure>
           `).join('');
         })() }}

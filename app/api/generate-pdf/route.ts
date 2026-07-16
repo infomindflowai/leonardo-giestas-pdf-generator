@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { isValidHttpUrl, normalizeFeatures, normalizeImageUrls } from "../../listing-utils";
+import { getPdfConsultant, isPdfLanguage, type PdfLanguage } from "../../pdf-options";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -11,6 +12,9 @@ type GeneratePdfBody = {
   description?: unknown;
   images?: unknown;
   sourceUrl?: unknown;
+  Nome?: unknown;
+  Telefone?: unknown;
+  Linguagem?: unknown;
 };
 
 type PdfPayload = {
@@ -20,6 +24,9 @@ type PdfPayload = {
   description: string;
   images: string[];
   sourceUrl?: string;
+  Nome: string;
+  Telefone: string;
+  Linguagem: PdfLanguage;
 };
 
 type ValidationResult = { error: string } | { payload: PdfPayload };
@@ -147,6 +154,9 @@ function validatePayload(body: GeneratePdfBody): ValidationResult {
     typeof body.sourceUrl === "string" && isValidHttpUrl(body.sourceUrl)
       ? body.sourceUrl
       : undefined;
+  const Nome = typeof body.Nome === "string" ? body.Nome.trim() : "";
+  const Telefone = typeof body.Telefone === "string" ? body.Telefone.trim() : "";
+  const consultant = getPdfConsultant(Nome);
 
   if (!title) {
     return { error: "Adicione um titulo antes de gerar o PDF." };
@@ -160,6 +170,14 @@ function validatePayload(body: GeneratePdfBody): ValidationResult {
     return { error: "Selecione pelo menos uma imagem valida para gerar o PDF." };
   }
 
+  if (!consultant || consultant.phone !== Telefone) {
+    return { error: "Selecione um consultor valido para gerar o PDF." };
+  }
+
+  if (!isPdfLanguage(body.Linguagem)) {
+    return { error: "Selecione um idioma valido para gerar o PDF." };
+  }
+
   return {
     payload: {
       title,
@@ -167,7 +185,10 @@ function validatePayload(body: GeneratePdfBody): ValidationResult {
       features,
       description,
       images,
-      sourceUrl
+      sourceUrl,
+      Nome: consultant.name,
+      Telefone: consultant.phone,
+      Linguagem: body.Linguagem
     }
   };
 }

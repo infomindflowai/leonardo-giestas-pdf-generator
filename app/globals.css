@@ -30,6 +30,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -281,11 +282,21 @@ h1 {
   align-items: end;
 }
 
+.pdf-options-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.55fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--care-line);
+  padding-bottom: 24px;
+}
+
 .copy-editor label:not(:first-child) {
   margin-top: 22px;
 }
 
 .copy-editor input,
+.copy-editor select,
 .copy-editor textarea {
   width: 100%;
   margin-top: 12px;
@@ -293,6 +304,12 @@ h1 {
   background: #ffffff;
   color: var(--care-ink);
   outline: none;
+}
+
+.copy-editor select {
+  min-height: 56px;
+  padding: 0 46px 0 16px;
+  font-size: 1.05rem;
 }
 
 .copy-editor input {
@@ -313,6 +330,7 @@ h1 {
 }
 
 .copy-editor input:focus,
+.copy-editor select:focus,
 .copy-editor textarea:focus {
   border-color: var(--care-bronze);
   box-shadow: 0 0 0 3px rgba(185, 126, 90, 0.14);
@@ -585,6 +603,7 @@ h1 {
 
   .editor-intro,
   .editor-workspace,
+  .pdf-options-grid,
   .title-price-grid {
     grid-template-columns: 1fr;
   }

@@ -1,6 +1,13 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import {
+  getPdfConsultant,
+  PDF_CONSULTANTS,
+  PDF_LANGUAGES,
+  type PdfConsultantName,
+  type PdfLanguage
+} from "./pdf-options";
 
 type Stage = "empty" | "editing";
 type BusyState = "idle" | "scraping" | "generating";
@@ -95,6 +102,9 @@ export default function PdfGenerator() {
   const [pricing, setPricing] = useState("");
   const [features, setFeatures] = useState("");
   const [description, setDescription] = useState("");
+  const [consultantName, setConsultantName] =
+    useState<PdfConsultantName>("Leonardo Giestas");
+  const [language, setLanguage] = useState<PdfLanguage>("Português");
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [message, setMessage] = useState(
@@ -108,6 +118,7 @@ export default function PdfGenerator() {
     [images]
   );
   const brokenCount = images.filter((image) => image.broken).length;
+  const consultant = getPdfConsultant(consultantName);
   const canImport =
     trimmedUrl.length > 0 && isValidHttpUrl(trimmedUrl) && busy === "idle";
   const canGenerate =
@@ -211,7 +222,10 @@ export default function PdfGenerator() {
           features: textToFeatures(features),
           description: description.trim(),
           images: selectedImages.map((image) => image.url),
-          sourceUrl
+          sourceUrl,
+          Nome: consultant?.name,
+          Telefone: consultant?.phone,
+          Linguagem: language
         }),
         signal: controller.signal
       });
@@ -387,6 +401,42 @@ export default function PdfGenerator() {
         {stage === "editing" ? (
           <section className="editor-workspace" aria-label="Editor do PDF">
             <div className="copy-editor">
+              <div className="pdf-options-grid">
+                <div>
+                  <label htmlFor="pdf-consultant">Consultor</label>
+                  <select
+                    id="pdf-consultant"
+                    value={consultantName}
+                    onChange={(event) =>
+                      setConsultantName(event.target.value as PdfConsultantName)
+                    }
+                  >
+                    {PDF_CONSULTANTS.map((option) => (
+                      <option key={option.name} value={option.name}>
+                        {option.name} — {option.phone}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="pdf-language">Idioma</label>
+                  <select
+                    id="pdf-language"
+                    value={language}
+                    onChange={(event) =>
+                      setLanguage(event.target.value as PdfLanguage)
+                    }
+                  >
+                    {PDF_LANGUAGES.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               <div className="title-price-grid">
                 <div>
                   <label htmlFor="listing-title">Título</label>
