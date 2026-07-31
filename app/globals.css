@@ -531,8 +531,27 @@ h1 {
 .final-actions {
   grid-column: 1 / -1;
   display: flex;
+  align-items: center;
   gap: 12px;
   justify-content: flex-end;
+}
+
+.generation-message {
+  max-width: 560px;
+  margin: 0;
+  color: var(--care-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.generation-message.error {
+  color: #9b2f22;
+  font-weight: 700;
+}
+
+.generation-message.success {
+  color: var(--care-bronze-dark);
+  font-weight: 700;
 }
 
 .primary-action {

@@ -12,7 +12,7 @@
       const data = $json.body || $json;
       let webhookBody = {};
       try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
-      if (data.title) return data.title;
+      if (data.title || webhookBody.title) return data.title || webhookBody.title;
       return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
         ? 'Property dossier'
         : 'Dossier de imóvel';
@@ -175,11 +175,19 @@
         })() }}</div>
       </header>
 
-      <h1>{{ (($json.body || $json).title || '') }}</h1>
+      <h1>{{ (() => {
+        const data = $json.body || $json;
+        let webhookBody = {};
+        try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+        return data.title || webhookBody.title || '';
+      })() }}</h1>
 
       {{ (() => {
         const data = $json.body || $json;
-        const pricing = data.pricing || data.price || '';
+        let webhookBody = {};
+        try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+        const pricing =
+          data.pricing || data.price || webhookBody.pricing || webhookBody.price || '';
         if (!pricing) return '';
         return `<div class="pricing">${pricing}</div>`;
       })() }}
@@ -202,7 +210,17 @@
 
       <img
         class="hero-image"
-        src="{{ (() => { const data = $json.body || $json; const images = Array.isArray(data.images) ? data.images : []; return images[0] || ''; })() }}"
+        src="{{ (() => {
+          const data = $json.body || $json;
+          let webhookBody = {};
+          try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+          const images = Array.isArray(data.images)
+            ? data.images
+            : Array.isArray(webhookBody.images)
+              ? webhookBody.images
+              : [];
+          return images[0] || '';
+        })() }}"
         alt="{{ (() => {
           const data = $json.body || $json;
           let webhookBody = {};
@@ -271,55 +289,59 @@
           ? 'Description'
           : 'Descrição';
       })() }}</h2>
-      <div class="description">{{ (($json.body || $json).description || '') }}</div>
-    </section>
-
-    <section class="page">
-      <header class="header">
-        <img
-          class="agency-logo"
-          src="https://media.egorealestate.com/ORIGINAL/27b7d0cb-032b-4644-bc49-4de29b36138b.png"
-          alt="{{ (() => {
-            const data = $json.body || $json;
-            let webhookBody = {};
-            try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
-            return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
-              ? 'Agency logo'
-              : 'Logótipo da agência';
-          })() }}"
-        />
-      </header>
-
-      <h2 class="section-title">{{ (() => {
+      <div class="description">{{ (() => {
         const data = $json.body || $json;
         let webhookBody = {};
         try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
-        return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
-          ? 'Images'
-          : 'Imagens';
-      })() }}</h2>
-
-      <div class="gallery">
-        {{ (() => {
-          const data = $json.body || $json;
-          const images = Array.isArray(data.images) ? data.images.filter(Boolean) : [];
-
-          return images.slice(1).map((url) => `
-            <figure>
-              <img
-                src="${url}"
-                alt="${(() => {
-                  let webhookBody = {};
-                  try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
-                  return (data.Linguagem || webhookBody.Linguagem) === 'Inglês'
-                    ? 'Property image'
-                    : 'Imagem do imóvel';
-                })()}"
-              />
-            </figure>
-          `).join('');
-        })() }}
-      </div>
+        return data.description || webhookBody.description || '';
+      })() }}</div>
     </section>
+
+    {{ (() => {
+      const data = $json.body || $json;
+      let webhookBody = {};
+      try { webhookBody = $('Webhook1').item.json.body || {}; } catch {}
+
+      const rawImages = Array.isArray(data.images)
+        ? data.images
+        : Array.isArray(webhookBody.images)
+          ? webhookBody.images
+          : [];
+      const images = rawImages.filter(Boolean).slice(1);
+
+      if (!images.length) return '';
+
+      const isEnglish = (data.Linguagem || webhookBody.Linguagem) === 'Inglês';
+      const sectionTitle = isEnglish ? 'Images' : 'Imagens';
+      const imageAlt = isEnglish ? 'Property image' : 'Imagem do imóvel';
+      const logoAlt = isEnglish ? 'Agency logo' : 'Logótipo da agência';
+      const pages = [];
+
+      for (let index = 0; index < images.length; index += 4) {
+        pages.push(images.slice(index, index + 4));
+      }
+
+      return pages.map((pageImages) => `
+        <section class="page">
+          <header class="header">
+            <img
+              class="agency-logo"
+              src="https://media.egorealestate.com/ORIGINAL/27b7d0cb-032b-4644-bc49-4de29b36138b.png"
+              alt="${logoAlt}"
+            />
+          </header>
+
+          <h2 class="section-title">${sectionTitle}</h2>
+
+          <div class="gallery">
+            ${pageImages.map((url) => `
+              <figure>
+                <img src="${url}" alt="${imageAlt}" />
+              </figure>
+            `).join('')}
+          </div>
+        </section>
+      `).join('');
+    })() }}
   </body>
 </html>

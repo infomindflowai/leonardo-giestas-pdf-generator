@@ -29,6 +29,8 @@ type GalleryImage = {
   broken: boolean;
 };
 
+const PDF_GENERATION_TIMEOUT_MS = 270_000;
+
 function isValidHttpUrl(value: string) {
   try {
     const parsed = new URL(value);
@@ -111,6 +113,9 @@ export default function PdfGenerator() {
     "Importe um anúncio para rever o conteúdo antes de gerar o PDF."
   );
   const [messageTone, setMessageTone] = useState<MessageTone>("neutral");
+  const [generationMessage, setGenerationMessage] = useState("");
+  const [generationMessageTone, setGenerationMessageTone] =
+    useState<MessageTone>("neutral");
 
   const trimmedUrl = listingUrl.trim();
   const selectedImages = useMemo(
@@ -132,6 +137,14 @@ export default function PdfGenerator() {
     setMessageTone(tone);
   }
 
+  function setGenerationNotice(
+    nextMessage: string,
+    tone: MessageTone = "neutral"
+  ) {
+    setGenerationMessage(nextMessage);
+    setGenerationMessageTone(tone);
+  }
+
   async function handleImport(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -150,6 +163,7 @@ export default function PdfGenerator() {
 
     try {
       setBusy("scraping");
+      setGenerationMessage("");
       setNotice("A importar o anúncio e a recolher imagens.");
 
       const response = await fetch("/api/scrape-listing", {
@@ -200,7 +214,7 @@ export default function PdfGenerator() {
 
   async function handleGeneratePdf() {
     if (!canGenerate) {
-      setNotice(
+      setGenerationNotice(
         "Confirme que existe título, descrição e pelo menos uma imagem selecionada.",
         "error"
       );
@@ -208,11 +222,16 @@ export default function PdfGenerator() {
     }
 
     const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 90000);
+    const timeoutId = window.setTimeout(
+      () => controller.abort(),
+      PDF_GENERATION_TIMEOUT_MS
+    );
 
     try {
       setBusy("generating");
-      setNotice("A gerar o PDF com a seleção atual.");
+      setGenerationNotice(
+        "A gerar o PDF. Com muitas imagens, este processo pode demorar alguns minutos."
+      );
 
       const response = await fetch("/api/generate-pdf", {
         method: "POST",
@@ -254,11 +273,11 @@ export default function PdfGenerator() {
       link.remove();
       window.URL.revokeObjectURL(downloadUrl);
 
-      setNotice("PDF gerado e descarregado com sucesso.", "success");
+      setGenerationNotice("PDF gerado e descarregado com sucesso.", "success");
     } catch (error) {
-      setNotice(
+      setGenerationNotice(
         error instanceof DOMException && error.name === "AbortError"
-          ? "A geração demorou demasiado tempo. Confirme o workflow no n8n."
+          ? "A geração demorou mais de quatro minutos. Confirme o workflow no n8n e tente novamente com menos imagens."
           : error instanceof Error
             ? error.message
             : "Ocorreu um erro inesperado ao gerar o PDF.",
@@ -574,11 +593,21 @@ export default function PdfGenerator() {
             </div>
 
             <div className="final-actions">
+              {generationMessage ? (
+                <p
+                  id="generation-message"
+                  className={`generation-message ${generationMessageTone}`}
+                  role={generationMessageTone === "error" ? "alert" : "status"}
+                >
+                  {generationMessage}
+                </p>
+              ) : null}
               <button
                 type="button"
                 className="primary-action"
                 onClick={handleGeneratePdf}
                 disabled={!canGenerate}
+                aria-describedby={generationMessage ? "generation-message" : undefined}
               >
                 {busy === "generating" ? "A gerar PDF" : "Gerar PDF"}
               </button>
