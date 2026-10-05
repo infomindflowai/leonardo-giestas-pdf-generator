@@ -167,10 +167,12 @@ PDF.co. As imagens seguem incorporadas no próprio HTML em base64, reduzindo o
 número de operações e os créditos consumidos. O passo de compressão ocorre
 depois da conversão do HTML para PDF.
 
-A rota `/api/generate-pdf` aguarda até quatro minutos pela conclusão do n8n. A
-função está configurada com uma duração máxima de cinco minutos e o browser
-mantém o pedido aberto durante quatro minutos e meio. Durante a geração, o
-estado e eventuais erros aparecem junto ao botão **Gerar PDF**.
+As rotas `/api/scrape-listing` e `/api/generate-pdf` aguardam até quatro minutos
+pela conclusão do n8n. Cada função está configurada com uma duração máxima de
+cinco minutos e o browser mantém o pedido aberto durante quatro minutos e meio.
+
+Durante a geração, o estado e eventuais erros aparecem junto ao botão
+**Gerar PDF**.
 
 A chave da API do PDF.co deve ficar configurada nas credenciais do n8n e nunca
 diretamente no HTML, no repositório ou nos campos públicos do webhook.

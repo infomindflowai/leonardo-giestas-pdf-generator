@@ -3,7 +3,9 @@ import { isValidHttpUrl, normalizeListingDraft } from "../../listing-utils";
 import { isPdfLanguage, type PdfLanguage } from "../../pdf-options";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 300;
+
+const LISTING_IMPORT_TIMEOUT_MS = 240_000;
 
 type ScrapeBody = {
   listingUrl?: unknown;
@@ -69,7 +71,10 @@ export async function POST(request: Request) {
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 55000);
+  const timeout = setTimeout(
+    () => controller.abort(),
+    LISTING_IMPORT_TIMEOUT_MS
+  );
 
   try {
     const n8nResponse = await fetch(webhookUrl, {

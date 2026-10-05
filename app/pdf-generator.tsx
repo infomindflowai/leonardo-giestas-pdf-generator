@@ -29,6 +29,7 @@ type GalleryImage = {
   broken: boolean;
 };
 
+const LISTING_IMPORT_TIMEOUT_MS = 270_000;
 const PDF_GENERATION_TIMEOUT_MS = 270_000;
 
 function isValidHttpUrl(value: string) {
@@ -159,7 +160,10 @@ export default function PdfGenerator() {
     }
 
     const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 90000);
+    const timeoutId = window.setTimeout(
+      () => controller.abort(),
+      LISTING_IMPORT_TIMEOUT_MS
+    );
 
     try {
       setBusy("scraping");
