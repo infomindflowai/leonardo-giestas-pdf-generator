@@ -295,12 +295,10 @@ export default function PdfGenerator() {
 
   function toggleImage(id: string) {
     setImages((current) =>
-      selectedFirst(
-        current.map((image) =>
-          image.id === id && !image.broken
-            ? { ...image, selected: !image.selected }
-            : image
-        )
+      current.map((image) =>
+        image.id === id && !image.broken
+          ? { ...image, selected: !image.selected }
+          : image
       )
     );
   }
@@ -358,7 +356,7 @@ export default function PdfGenerator() {
 
   function selectAllImages() {
     setImages((current) =>
-      selectedFirst(current.map((image) => ({ ...image, selected: !image.broken })))
+      current.map((image) => ({ ...image, selected: !image.broken }))
     );
   }
 
