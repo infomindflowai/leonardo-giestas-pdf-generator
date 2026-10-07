@@ -3,7 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import {
   getPdfConsultant,
-  PDF_CONSULTANTS,
+  VISIBLE_PDF_CONSULTANTS,
   PDF_LANGUAGES,
   type PdfConsultantName,
   type PdfLanguage
@@ -106,7 +106,7 @@ export default function PdfGenerator() {
   const [features, setFeatures] = useState("");
   const [description, setDescription] = useState("");
   const [consultantName, setConsultantName] =
-    useState<PdfConsultantName>("Leonardo Giestas");
+    useState<PdfConsultantName>(VISIBLE_PDF_CONSULTANTS[0].name);
   const [language, setLanguage] = useState<PdfLanguage>("Português");
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -401,7 +401,7 @@ export default function PdfGenerator() {
                   setConsultantName(event.target.value as PdfConsultantName)
                 }
               >
-                {PDF_CONSULTANTS.map((option) => (
+                {VISIBLE_PDF_CONSULTANTS.map((option) => (
                   <option key={option.name} value={option.name}>
                     {option.name} — {option.phone}
                   </option>

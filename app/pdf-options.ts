@@ -1,7 +1,12 @@
 export const PDF_CONSULTANTS = [
-  { name: "Leonardo Giestas", phone: "913 740 456" },
-  { name: "Rogner Vieira", phone: "966 490 870" }
+  { name: "Leonardo Giestas", phone: "913 740 456", visible: false },
+  { name: "Rogner Vieira", phone: "966 490 870", visible: true }
 ] as const;
+
+// Set visible to true to restore a consultant in the frontend.
+export const VISIBLE_PDF_CONSULTANTS = PDF_CONSULTANTS.filter(
+  (consultant) => consultant.visible
+);
 
 export const PDF_LANGUAGES = ["Português", "Inglês"] as const;
 

@@ -7,7 +7,7 @@ imagens e gerar um dossier PDF através de webhooks privados do n8n.
 ## Fluxo funcional
 
 1. O utilizador escolhe o consultor e o idioma do PDF. Os valores iniciais são
-   Leonardo Giestas e Português.
+   Rogner Vieira e Português.
 2. Ao importar o anúncio, a app envia o URL e `Linguagem` ao webhook de
    importação.
 3. O workflow do n8n recolhe os dados do anúncio e devolve `title`, `features` e
@@ -22,6 +22,11 @@ imagens e gerar um dossier PDF através de webhooks privados do n8n.
 8. O n8n responde à aplicação com o URL do PDF final para iniciar o download.
 
 ## Desenvolvimento
+
+A visibilidade dos consultores no frontend é configurada em `app/pdf-options.ts`.
+Leonardo Giestas está temporariamente oculto; para voltar a apresentá-lo nas
+opções, basta alterar o seu campo `visible` para `true`. Os seus dados continuam
+guardados e a validação do backend mantém os dois consultores.
 
 1. Instalar dependências:
    ```bash
